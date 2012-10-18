@@ -9,10 +9,6 @@
 
 rightscale_marker :begin
 
-smarty_version = '3.1.11'
-smarty_tmp_path = ::File.join(Chef::Config[:file_cache_path], "Smarty-#{smarty_version}.tar.gz")
-smarty_dest_path = "/usr/share/php/Smarty"
-
 composer_path = ::File.join(Chef::Config[:file_cache_path], "composer.phar")
 
 bash "Install Zend Framework Prerequisite" do
@@ -21,21 +17,6 @@ pear channel-discover zend.googlecode.com/svn
 pear install zend/zend-1.11.12
   EOF
   creates "/usr/share/pear/Zend"
-end
-
-unless ::File.exists?(::File.join(smarty_dest_path, "lib"))
-  directory smarty_dest_path do
-    recursive true
-  end
-
-  remote_file smarty_tmp_path do
-    source "http://www.smarty.net/files/Smarty-#{smarty_version}.tar.gz"
-  end
-
-  execute "Extract Smarty lib Download" do
-    command "tar -zxf #{smarty_tmp_path} -C #{smarty_dest_path} --strip-components 1"
-  end
-
 end
 
 directory ::File.join(node.rsss.install_dir, 'logs') do
