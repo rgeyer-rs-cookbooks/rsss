@@ -48,6 +48,11 @@ template ::File.join(node.rsss.install_dir, 'application', 'configs', 'db.ini') 
   source ::File.join(node.rsss.install_dir, 'application', 'configs', 'db.ini.erb')
   mode 0650
   group "apache"
+  variables(
+    :db_host => 'localhost',
+    :db_name => 'rs_selfservice',
+    :db_user => 'root'
+  )
 end
 
 template ::File.join(node.rsss.install_dir, 'application', 'configs', 'cloud_creds.ini') do
