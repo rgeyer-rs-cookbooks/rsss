@@ -46,6 +46,11 @@ attribute "rsss/datapipe_owner",
   :required => "required",
   :recipes => ["rsss::setup_rsss"]
 
+attribute "rsss/aws_owner",
+  :display_name => "RSSS AWS Owner Name",
+  :required => "required",
+  :recipes => ["rsss::setup_rsss"]
+
 attribute "rsss/fqdn",
   :display_name => "RSSS Fully Qualified Domainname",
   :required => "required",

@@ -66,7 +66,8 @@ template ::File.join(node.rsss.install_dir, 'application', 'configs', 'cloud_cre
     :rs_acct_num => node.rsss.rightscale_acct_num,
     :aws_access_key => node.rsss.aws_access_key,
     :aws_secret_access_key => node.rsss.aws_secret_access_key,
-    :datapipe_owner => node.rsss.datapipe_owner
+    :datapipe_owner => node.rsss.datapipe_owner,
+    :aws_owner => node.rsss.aws_owner
   )
 end
 

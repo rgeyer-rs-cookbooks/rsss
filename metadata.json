@@ -1,128 +1,140 @@
 {
-  "suggestions": {
-  },
-  "recommendations": {
-  },
-  "license": "All rights reserved",
-  "maintainer": "Ryan J. Geyer",
+  "name": "rsss",
+  "description": "Installs/Configures rsss",
   "long_description": "Installs/Configures rsss",
-  "replacing": {
-  },
+  "maintainer": "Ryan J. Geyer",
+  "maintainer_email": "me@ryangeyer.com",
+  "license": "All rights reserved",
   "platforms": {
     "centos": ">= 0.0.0"
-  },
-  "description": "Installs/Configures rsss",
-  "version": "0.0.1",
-  "providing": {
-  },
-  "conflicting": {
   },
   "dependencies": {
     "rightscale": ">= 0.0.0"
   },
-  "groupings": {
+  "recommendations": {
   },
-  "name": "rsss",
-  "recipes": {
-    "rsss::setup_rsss": "Assuming that the code has already been downloaded and that an apache vhost is setup, this installs and configures dependencies for the RSSS"
+  "suggestions": {
   },
-  "maintainer_email": "me@ryangeyer.com",
+  "conflicting": {
+  },
+  "providing": {
+  },
+  "replacing": {
+  },
   "attributes": {
-    "rsss/fqdn": {
-      "display_name": "RSSS Fully Qualified Domainname",
-      "type": "string",
-      "calculated": false,
-      "required": "required",
-      "recipes": [
-        "rsss::setup_rsss"
-      ],
-      "choice": [
-
-      ]
-    },
-    "rsss/datapipe_owner": {
-      "display_name": "RSSS Datapipe Owner Name",
-      "type": "string",
-      "calculated": false,
-      "required": "required",
-      "recipes": [
-        "rsss::setup_rsss"
-      ],
-      "choice": [
-
-      ]
-    },
     "rsss/install_dir": {
       "display_name": "RSSS Install Directory",
-      "type": "string",
-      "calculated": false,
       "required": "required",
       "recipes": [
         "rsss::setup_rsss"
       ],
       "choice": [
 
-      ]
-    },
-    "rsss/rightscale_acct_num": {
-      "display_name": "RSSS RightScale Account Number",
-      "type": "string",
-      "calculated": false,
-      "required": "required",
-      "recipes": [
-        "rsss::setup_rsss"
       ],
-      "choice": [
-
-      ]
-    },
-    "rsss/rightscale_password": {
-      "display_name": "RSSS RightScale Password",
-      "type": "string",
       "calculated": false,
-      "required": "required",
-      "recipes": [
-        "rsss::setup_rsss"
-      ],
-      "choice": [
-
-      ]
-    },
-    "rsss/aws_secret_access_key": {
-      "display_name": "RSSS AWS Secret Access Key",
-      "type": "string",
-      "calculated": false,
-      "required": "required",
-      "recipes": [
-        "rsss::setup_rsss"
-      ],
-      "choice": [
-
-      ]
+      "type": "string"
     },
     "rsss/rightscale_email": {
       "display_name": "RSSS RightScale Email",
-      "type": "string",
-      "calculated": false,
       "required": "required",
       "recipes": [
         "rsss::setup_rsss"
       ],
       "choice": [
 
-      ]
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/rightscale_password": {
+      "display_name": "RSSS RightScale Password",
+      "required": "required",
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/rightscale_acct_num": {
+      "display_name": "RSSS RightScale Account Number",
+      "required": "required",
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
     },
     "rsss/aws_access_key": {
       "display_name": "RSSS AWS Access Key",
-      "type": "string",
-      "calculated": false,
       "required": "required",
       "recipes": [
         "rsss::setup_rsss"
       ],
       "choice": [
 
-      ]
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/aws_secret_access_key": {
+      "display_name": "RSSS AWS Secret Access Key",
+      "required": "required",
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/datapipe_owner": {
+      "display_name": "RSSS Datapipe Owner Name",
+      "required": "required",
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/aws_owner": {
+      "display_name": "RSSS AWS Owner Name",
+      "required": "required",
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/fqdn": {
+      "display_name": "RSSS Fully Qualified Domainname",
+      "required": "required",
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
     }
-  }
+  },
+  "groupings": {
+  },
+  "recipes": {
+    "rsss::setup_rsss": "Assuming that the code has already been downloaded and that an apache vhost is setup, this installs and configures dependencies for the RSSS"
+  },
+  "version": "0.0.1"
 }
