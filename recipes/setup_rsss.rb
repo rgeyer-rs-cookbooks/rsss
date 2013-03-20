@@ -2,7 +2,7 @@
 # Cookbook Name:: rsss
 # Recipe:: setup_rsss
 #
-# Copyright 2012, Ryan J. Geyer <me@ryangeyer.com>
+# Copyright 2012-2013, Ryan J. Geyer <me@ryangeyer.com>
 #
 # All rights reserved - Do Not Redistribute
 #
@@ -10,14 +10,6 @@
 rightscale_marker :begin
 
 composer_path = ::File.join(Chef::Config[:file_cache_path], "composer.phar")
-
-bash "Install Zend Framework Prerequisite" do
-  code <<-EOF
-pear channel-discover zend.googlecode.com/svn
-pear install zend/zend-1.11.12
-  EOF
-  creates "/usr/share/pear/Zend"
-end
 
 directory ::File.join(node.rsss.install_dir, 'logs') do
   owner 'apache'
@@ -43,55 +35,29 @@ execute "Get rsss vendor libraries" do
   creates ::File.join(node.rsss.install_dir, 'vendor')
 end
 
-template ::File.join(node.rsss.install_dir, 'application', 'configs', 'db.ini') do
+template ::File.join(node.rsss.install_dir, 'config', 'autoload', 'local.php') do
   local true
-  source ::File.join(node.rsss.install_dir, 'application', 'configs', 'db.ini.erb')
+  source ::File.join(node.rsss.install_dir, 'config', 'autoload', 'local.php.erb')
   mode 0650
   group "apache"
   variables(
     :db_host => 'localhost',
     :db_name => 'rs_selfservice',
-    :db_user => 'root'
-  )
-end
-
-template ::File.join(node.rsss.install_dir, 'application', 'configs', 'cloud_creds.ini') do
-  local true
-  source ::File.join(node.rsss.install_dir, 'application', 'configs', 'cloud_creds.ini.erb')
-  mode 0650
-  group "apache"
-  variables(
+    :db_user => 'root',
     :rs_email => node.rsss.rightscale_email,
     :rs_pass => node.rsss.rightscale_password,
     :rs_acct_num => node.rsss.rightscale_acct_num,
-    :aws_access_key => node.rsss.aws_access_key,
-    :aws_secret_access_key => node.rsss.aws_secret_access_key,
-    :datapipe_owner => node.rsss.datapipe_owner,
-    :aws_owner => node.rsss.aws_owner
-  )
-end
-
-template ::File.join(node.rsss.install_dir, 'application', 'configs', 'rsss.ini') do
-  local true
-  source ::File.join(node.rsss.install_dir, 'application', 'configs', 'rsss.ini.erb')
-  mode 0650
-  group "apache"
-  variables(
     :hostname => node.rsss.fqdn
   )
 end
 
 # Create empty model directories
-directory ::File.join(node.rsss.install_dir, 'application', 'modules', 'admin', 'models')
-
-directory ::File.join(node.rsss.install_dir, 'application', 'modules', 'default', 'models')
-
-directory ::File.join(node.rsss.install_dir, 'application', 'proxies') do
+directory ::File.join(node.rsss.install_dir, 'data', 'DoctrineORMModule', 'Proxy') do
   mode 0774
   group "apache"
 end
 
-# Create a php.d file to set the timezone
+directory ::File.join(node.rsss.install_dir, 'data', 'SmartyModule', 'templates_c')
 
 # Create DB and zap schema
 if `mysql -e 'show databases' | grep rs_selfservice`.empty?
@@ -99,9 +65,12 @@ if `mysql -e 'show databases' | grep rs_selfservice`.empty?
     command "mysql -e 'create database rs_selfservice'"
   end
 
-  execute "Zap Schema" do
-    cwd ::File.join(node.rsss.install_dir, 'application', 'scripts')
-    command './zap_schema.sh'
+  bash "Zap Schema" do
+    cwd ::File.join(node.rsss.install_dir)
+    code <<-EOF
+vendor/bin/doctrine-module orm:schema-tool:create
+php public/index.php product add
+    EOF
   end
 end
 

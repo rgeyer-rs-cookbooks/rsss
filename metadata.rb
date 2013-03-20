@@ -3,7 +3,7 @@ maintainer_email "me@ryangeyer.com"
 license          "All rights reserved"
 description      "Installs/Configures rsss"
 long_description "Installs/Configures rsss"
-version          "0.0.1"
+version          "0.0.2"
 
 supports "centos"
 
@@ -31,27 +31,14 @@ attribute "rsss/rightscale_acct_num",
   :required => "required",
   :recipes => ["rsss::setup_rsss"]
 
-attribute "rsss/aws_access_key",
-  :display_name => "RSSS AWS Access Key",
-  :required => "required",
-  :recipes => ["rsss::setup_rsss"]
-
-attribute "rsss/aws_secret_access_key",
-  :display_name => "RSSS AWS Secret Access Key",
-  :required => "required",
-  :recipes => ["rsss::setup_rsss"]
-
-attribute "rsss/datapipe_owner",
-  :display_name => "RSSS Datapipe Owner Name",
-  :required => "required",
-  :recipes => ["rsss::setup_rsss"]
-
-attribute "rsss/aws_owner",
-  :display_name => "RSSS AWS Owner Name",
-  :required => "required",
-  :recipes => ["rsss::setup_rsss"]
-
 attribute "rsss/fqdn",
   :display_name => "RSSS Fully Qualified Domainname",
   :required => "required",
+  :recipes => ["rsss::setup_rsss"]
+
+attribute "rsss/owners",
+  :display_name => "RSSS Cloud Owners",
+  :description => "An array of key:value pairs where the key is the RightScale Cloud ID, and the value is the owner ID for the supplied cloud credentials.  I.E. 1:1234-45678-910,1:1234-45678-910",
+  :required => "required",
+  :type => "array",
   :recipes => ["rsss::setup_rsss"]
