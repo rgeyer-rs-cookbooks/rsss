@@ -42,3 +42,11 @@ attribute "rsss/owners",
   :required => "required",
   :type => "array",
   :recipes => ["rsss::setup_rsss"]
+
+attribute "rsss/memcached_servers",
+  :display_name => "RSSS Memcached Servers",
+  :description => "An array of key:value pairs where the key is a memcached hostname and the value is a listen port",
+  :required => "recommended",
+  :type => "array",
+  :default => ["localhost:11211"],
+  :recipes => ["rsss::setup_rsss"]

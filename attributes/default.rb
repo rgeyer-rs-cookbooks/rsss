@@ -1,0 +1,1 @@
+default['rsss']['memcached_servers'] = ["localhost:11211"]

@@ -11,6 +11,8 @@ rightscale_marker :begin
 
 composer_path = ::File.join(Chef::Config[:file_cache_path], "composer.phar")
 
+package "subversion"
+
 directory ::File.join(node.rsss.install_dir, 'logs') do
   owner 'apache'
   group 'apache'
@@ -25,13 +27,13 @@ end
 # Install and run composer.php to get dependencies
 execute "Download composer.phar" do
   cwd Chef::Config[:file_cache_path]
-  command "curl -s http://getcomposer.org/installer | php"
+  command "curl -s http://getcomposer.org/installer | php -d allow_url_fopen=On"
   creates composer_path
 end
 
 execute "Get rsss vendor libraries" do
   cwd node.rsss.install_dir
-  command "php #{composer_path} install"
+  command "php -d allow_url_fopen=On #{composer_path} install"
   creates ::File.join(node.rsss.install_dir, 'vendor')
 end
 
@@ -47,17 +49,23 @@ template ::File.join(node.rsss.install_dir, 'config', 'autoload', 'local.php') d
     :rs_email => node.rsss.rightscale_email,
     :rs_pass => node.rsss.rightscale_password,
     :rs_acct_num => node.rsss.rightscale_acct_num,
-    :hostname => node.rsss.fqdn
+    :hostname => node.rsss.fqdn,
+    :owners => node.rsss.owners
   )
 end
 
 # Create empty model directories
 directory ::File.join(node.rsss.install_dir, 'data', 'DoctrineORMModule', 'Proxy') do
+  recursive true
   mode 0774
   group "apache"
 end
 
-directory ::File.join(node.rsss.install_dir, 'data', 'SmartyModule', 'templates_c')
+directory ::File.join(node.rsss.install_dir, 'data', 'SmartyModule', 'templates_c') do
+  recursive true
+  mode 0774
+  group "apache"
+end
 
 # Create DB and zap schema
 if `mysql -e 'show databases' | grep rs_selfservice`.empty?
