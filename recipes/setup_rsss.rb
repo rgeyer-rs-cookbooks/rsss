@@ -50,7 +50,8 @@ template ::File.join(node.rsss.install_dir, 'config', 'autoload', 'local.php') d
     :rs_pass => node.rsss.rightscale_password,
     :rs_acct_num => node.rsss.rightscale_acct_num,
     :hostname => node.rsss.fqdn,
-    :owners => node.rsss.owners
+    :owners => node.rsss.owners,
+    :memcached_servers => node.rsss.memcached_servers
   )
 end
 
