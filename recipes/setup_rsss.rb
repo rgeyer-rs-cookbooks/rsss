@@ -69,18 +69,28 @@ directory ::File.join(node.rsss.install_dir, 'data', 'SmartyModule', 'templates_
 end
 
 # Create DB and zap schema
-if `mysql -e 'show databases' | grep rs_selfservice`.empty?
-  execute "Create Database Schema" do
-    command "mysql -e 'create database rs_selfservice'"
-  end
+bash "Create Database Schema" do
+  code <<-EOF
+if [ -z `mysql -e 'show databases' | grep rs_selfservice`]
+then
+  mysql -e 'create database rs_selfservice'
+fi
+EOF
+end
 
-  bash "Zap Schema" do
-    cwd ::File.join(node.rsss.install_dir)
-    code <<-EOF
-vendor/bin/doctrine-module orm:schema-tool:create
-php public/index.php product add
-    EOF
-  end
+product_add_lines = ''
+node.rsss.products.each do |product|
+  product_add_lines += "\n  php public/index.php product add #{product}"
+end
+
+bash "Zap Schema" do
+  cwd ::File.join(node.rsss.install_dir)
+  code <<-EOF
+if [ -z `mysql -e 'show tables' rs_selfservice`]
+then
+  vendor/bin/doctrine-module orm:schema-tool:create#{product_add_lines}
+fi
+  EOF
 end
 
 # Hack up the vhost for AllowOverride and using /public

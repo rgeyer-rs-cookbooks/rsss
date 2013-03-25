@@ -50,3 +50,11 @@ attribute "rsss/memcached_servers",
   :type => "array",
   :default => ["localhost:11211"],
   :recipes => ["rsss::setup_rsss"]
+
+attribute "rsss/products",
+  :display_name => "RSSS Products",
+  :description => "An array of products which should be setup on the initial run.  Available options are (baselinux,php3tier)",
+  :required => "recommended",
+  :type => "array",
+  :default => ["baselinux","php3tier"],
+  :recipes => ["rsss::setup_rsss"]
