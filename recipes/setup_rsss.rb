@@ -71,7 +71,7 @@ end
 # Create DB and zap schema
 bash "Create Database Schema" do
   code <<-EOF
-if [ -z `mysql -e 'show databases' | grep rs_selfservice`]
+if [ -z `mysql -e 'show databases' | grep rs_selfservice` ]
 then
   mysql -e 'create database rs_selfservice'
 fi
@@ -86,18 +86,17 @@ end
 bash "Zap Schema" do
   cwd ::File.join(node.rsss.install_dir)
   code <<-EOF
-if [ -z `mysql -e 'show tables' rs_selfservice`]
+if [ -z `mysql -e 'show tables' rs_selfservice` ]
 then
   vendor/bin/doctrine-module orm:schema-tool:create#{product_add_lines}
 fi
   EOF
 end
 
-# Hack up the vhost for AllowOverride and using /public
-# Create or re-create virtualhost (apache) or config for nginx
-# Point doc root to /root/of/app/public
-# Set AllowOverride All
-# SetEnv APPLICATION_ENV "production|development"
+bash "Prime the caches" do
+  cwd ::File.join(node.rsss.install_dir)
+  code "php public/index.php cache update rightscale"
+end
 
 bash "Hack up the vhost" do
   code <<-EOF
@@ -105,6 +104,22 @@ sed -i 's/AllowOverride None/AllowOverride All/g' /etc/httpd/sites-available/rss
 sed -i 's,/home/webapps/rsss\\(>\\?\\)$,/home/webapps/rsss/public\\1,g' /etc/httpd/sites-available/rsss.conf
 /etc/init.d/httpd restart
   EOF
+end
+
+# TODO: cron for updating cache
+rightscale_logrotate_app "rsss" do
+  cookbook "rightscale"
+  template "logrotate.erb"
+  path [::File.join(node.rsss.install_dir,"logs","*.log")]
+  frequency "size 10M"
+  rotate 4
+end
+
+cron "RSSS Cache Refresh" do
+  minute 45
+  user "root"
+  command "php #{::File.join(node.rsss.install_dir,"public","index.php")} cache update rightscale"
+  action :create
 end
 
 rightscale_marker :end
