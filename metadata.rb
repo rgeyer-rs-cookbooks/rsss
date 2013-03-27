@@ -58,3 +58,10 @@ attribute "rsss/products",
   :type => "array",
   :default => ["baselinux","php3tier"],
   :recipes => ["rsss::setup_rsss"]
+
+attribute "rsss/users",
+  :display_name => "RSSS Authorized Users",
+  :description => "An array of email addresses of users who are allowed to use the RSSS Vending Machine.  They will be authenticated by Google OpenID",
+  :required => "required",
+  :type => "array",
+  :recipes => ["rsss::setup_rsss"]

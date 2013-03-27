@@ -98,6 +98,17 @@ bash "Prime the caches" do
   code "php public/index.php cache update rightscale"
 end
 
+preauth_code = ""
+
+node.rsss.users.each do |email|
+  preauth_code += "\nphp public/index.php users authorize #{email}"
+end
+
+bash "(Pre)authorize users" do
+  cwd ::File.join(node.rsss.install_dir)
+  code preauth_code
+end
+
 bash "Hack up the vhost" do
   code <<-EOF
 sed -i 's/AllowOverride None/AllowOverride All/g' /etc/httpd/sites-available/rsss.conf
