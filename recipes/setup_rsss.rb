@@ -137,6 +137,7 @@ end
 file "/etc/php.d/memory.ini" do
   backup false
   content "memory_limit = 512M"
+  action :create
 end
 
 service "httpd" do
