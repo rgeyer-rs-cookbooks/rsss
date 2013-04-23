@@ -133,4 +133,14 @@ cron "RSSS Cache Refresh" do
   action :create
 end
 
+# TODO: Bump up the PHP Memory Limit based on available memory and reboot apache
+file "/etc/php.d/memory.ini" do
+  backup false
+  content "memory_limit = 512M"
+end
+
+service "httpd" do
+  action :restart
+end
+
 rightscale_marker :end

@@ -34,7 +34,7 @@ attribute "rsss/rightscale_acct_num",
 attribute "rsss/fqdn",
   :display_name => "RSSS Fully Qualified Domainname",
   :required => "required",
-  :recipes => ["rsss::setup_rsss"]
+  :recipes => ["rsss::setup_rsss", "rsss::setup_ride"]
 
 attribute "rsss/owners",
   :display_name => "RSSS Cloud Owners",
