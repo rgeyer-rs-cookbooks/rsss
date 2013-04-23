@@ -74,7 +74,8 @@
       "display_name": "RSSS Fully Qualified Domainname",
       "required": "required",
       "recipes": [
-        "rsss::setup_rsss"
+        "rsss::setup_rsss",
+        "rsss::setup_ride"
       ],
       "choice": [
 
@@ -94,12 +95,59 @@
 
       ],
       "calculated": false
+    },
+    "rsss/memcached_servers": {
+      "display_name": "RSSS Memcached Servers",
+      "description": "An array of key:value pairs where the key is a memcached hostname and the value is a listen port",
+      "required": "recommended",
+      "type": "array",
+      "default": [
+        "localhost:11211"
+      ],
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false
+    },
+    "rsss/products": {
+      "display_name": "RSSS Products",
+      "description": "An array of products which should be setup on the initial run.  Available options are (baselinux,php3tier)",
+      "required": "recommended",
+      "type": "array",
+      "default": [
+        "baselinux",
+        "php3tier"
+      ],
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false
+    },
+    "rsss/users": {
+      "display_name": "RSSS Authorized Users",
+      "description": "An array of email addresses of users who are allowed to use the RSSS Vending Machine.  They will be authenticated by Google OpenID",
+      "required": "required",
+      "type": "array",
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false
     }
   },
   "groupings": {
   },
   "recipes": {
-    "rsss::setup_rsss": "Assuming that the code has already been downloaded and that an apache vhost is setup, this installs and configures dependencies for the RSSS"
+    "rsss::setup_rsss": "Assuming that the code has already been downloaded and that an apache vhost is setup, this installs and configures dependencies for the RSSS",
+    "rsss::setup_ride": "Adds RIDE.. If you don't know what this is, don't use it. ;)"
   },
-  "version": "0.0.2"
+  "version": "0.0.3"
 }

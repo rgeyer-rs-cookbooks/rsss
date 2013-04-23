@@ -3,13 +3,14 @@ maintainer_email "me@ryangeyer.com"
 license          "All rights reserved"
 description      "Installs/Configures rsss"
 long_description "Installs/Configures rsss"
-version          "0.0.2"
+version          "0.0.3"
 
 supports "centos"
 
 depends "rightscale"
 
 recipe "rsss::setup_rsss", "Assuming that the code has already been downloaded and that an apache vhost is setup, this installs and configures dependencies for the RSSS"
+recipe "rsss::setup_ride", "Adds RIDE.. If you don't know what this is, don't use it. ;)"
 
 attribute "rsss/install_dir",
   :display_name => "RSSS Install Directory",
