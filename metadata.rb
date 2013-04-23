@@ -8,6 +8,8 @@ version          "0.0.3"
 supports "centos"
 
 depends "rightscale"
+depends "repo"
+depends "apache2"
 
 recipe "rsss::setup_rsss", "Assuming that the code has already been downloaded and that an apache vhost is setup, this installs and configures dependencies for the RSSS"
 recipe "rsss::setup_ride", "Adds RIDE.. If you don't know what this is, don't use it. ;)"

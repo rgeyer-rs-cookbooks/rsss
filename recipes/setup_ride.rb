@@ -56,7 +56,7 @@ bash "Bundle install RIDE" do
   cwd "/opt/ride"
   code <<EOC
 bundle install
-rackup -p 8000
+rackup -p 8000 &
 EOC
 end
 
@@ -72,12 +72,12 @@ apache_module "proxy"
 apache_module "proxy_http"
 
 bash "Add ProxyPass rules for ride" do
-  code <<-EOC
+  code <<EOC
 if [ -z "`grep ProxyPass /etc/httpd/sites-enabled/rsss.conf`" ]
 then
-  sed -i "s,</VirtualHost>,  ProxyPass /ride http://localhost:8000\n  ProxyPassReverse /ride http://localhost:8000\n</VirtualHost>,g" /etc/httpd/sites-enabled/rsss.conf
+  sed -i "s,</VirtualHost>,  ProxyPass /ride http://localhost:8000\\n  ProxyPassReverse /ride http://localhost:8000\\n</VirtualHost>,g" /etc/httpd/sites-enabled/rsss.conf
 fi
-  EOC
+EOC
 end
 
 service "httpd" do
