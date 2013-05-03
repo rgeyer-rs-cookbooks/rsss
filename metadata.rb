@@ -71,3 +71,19 @@ attribute "rsss/revision",
   :required => "required",
   :type => "string",
   :recipes => ["rsss::setup_rsss"]
+
+attribute "rsss/dns/id",
+  :display_name => "RSSS DNS Record ID",
+  :description => "See sys_dns/id for more details",
+  :required => "required",
+  :type => "string",
+  :recipes => ["rsss::setup_rsss_aio"]
+
+attribute "rsss/dns/region",
+  :display_name => "RSSS Cloud DNS Region",
+  :description =>
+    "You must specify the region when using CloudDNS." +
+    " Example: Chicago",
+  :required => "optional",
+  :choice => ["Chicago", "Dallas", "London"],
+  :recipes => ["rsss::setup_rsss_aio"]

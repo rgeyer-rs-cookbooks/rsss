@@ -61,4 +61,11 @@ end
 
 directory ::File.join(mountpoint, "rsss")
 
+sys_dns "default" do
+  id node["rsss"]["dns"]["id"]
+  address node.cloud.public_ips[0]
+  region node["rsss"]["dns"]["region"]
+  action :set
+end
+
 rightscale_marker :end
