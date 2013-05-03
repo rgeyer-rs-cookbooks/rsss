@@ -7,7 +7,7 @@ version          "0.0.4"
 
 supports "centos"
 
-%w{rightscale repo apache2 web_apache db_mysql db block_device}.each do |dep|
+%w{rightscale repo apache2 web_apache db_mysql db block_device sys_dns logrotate}.each do |dep|
   depends dep
 end
 
