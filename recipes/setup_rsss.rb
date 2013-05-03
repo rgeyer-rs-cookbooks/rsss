@@ -10,15 +10,58 @@
 rightscale_marker :begin
 
 composer_path = ::File.join(Chef::Config[:file_cache_path], "composer.phar")
+underscored_fqdn = node.rsss.fqdn.gsub(".", "_")
+underscored_fqdn = underscored_fqdn.gsub("-", "_")
+underscored_fqdn_16 = underscored_fqdn.slice(0..15)
+vhost_dir = ::File.join(node.block_device.devices.device1.mount_point, "rsss", node.rsss.fqdn)
+docroot = ::File.join(vhost_dir, "public")
 
 package "subversion"
 
-directory ::File.join(node.rsss.install_dir, 'logs') do
+apache_site "000-default" do
+  enable false
+end
+
+ssl_dir = ::File.join("/etc", node.web_apache.config_subdir, 'rightscale.d', "key")
+
+directory ssl_dir do
+  mode 00700
+  recursive true
+end
+
+bash "Create SSL Certificates" do
+  cwd ssl_dir
+  code <<-EOH
+  umask 077
+  openssl genrsa 2048 > #{node.rsss.fqdn}.key
+  openssl req -subj '/CN=#{node.rsss.fqdn}' -new -x509 -nodes -sha1 -days 3650 -key #{node.rsss.fqdn}.key > #{node.rsss.fqdn}.crt
+  cat #{node.rsss.fqdn}.key #{node.rsss.fqdn}.crt > #{node.rsss.fqdn}.pem
+  EOH
+  not_if { ::File.exists?(::File.join(ssl_dir, "#{node.rsss.fqdn}.pem")) }
+end
+
+web_app node.rsss.fqdn do
+  docroot docroot
+  vhost_port 443
+  server_name node.rsss.fqdn
+  ssl_certificate_file ::File.join(ssl_dir, "#{node.rsss.fqdn}.crt")
+  ssl_key_file ::File.join(ssl_dir, "#{node.rsss.fqdn}.key")
+  allow_override "All"
+  notifies :restart, resources(:service => "apache2")
+end
+
+git vhost_dir do
+  repository "git://github.com/rgeyer/rs_selfservice.git"
+  reference node.rsss.revision
+  action :sync
+end
+
+directory ::File.join(vhost_dir, 'logs') do
   owner 'apache'
   group 'apache'
 end
 
-file ::File.join(node.rsss.install_dir, 'logs', 'application.log') do
+file ::File.join(vhost_dir, 'logs', 'application.log') do
   owner 'apache'
   group 'apache'
   action [:create, :touch]
@@ -32,20 +75,21 @@ execute "Download composer.phar" do
 end
 
 execute "Get rsss vendor libraries" do
-  cwd node.rsss.install_dir
+  cwd vhost_dir
   command "php -d allow_url_fopen=On #{composer_path} install"
-  creates ::File.join(node.rsss.install_dir, 'vendor')
+  creates ::File.join(vhost_dir, 'vendor')
 end
 
-template ::File.join(node.rsss.install_dir, 'config', 'autoload', 'local.php') do
+template ::File.join(vhost_dir, 'config', 'autoload', 'local.php') do
   local true
-  source ::File.join(node.rsss.install_dir, 'config', 'autoload', 'local.php.erb')
+  source ::File.join(vhost_dir, 'config', 'autoload', 'local.php.erb')
   mode 0650
   group "apache"
   variables(
     :db_host => 'localhost',
-    :db_name => 'rs_selfservice',
-    :db_user => 'root',
+    :db_name => underscored_fqdn,
+    :db_user => underscored_fqdn_16,
+    :db_pass => node.rsss.dbpass,
     :rs_email => node.rsss.rightscale_email,
     :rs_pass => node.rsss.rightscale_password,
     :rs_acct_num => node.rsss.rightscale_acct_num,
@@ -56,13 +100,13 @@ template ::File.join(node.rsss.install_dir, 'config', 'autoload', 'local.php') d
 end
 
 # Create empty model directories
-directory ::File.join(node.rsss.install_dir, 'data', 'DoctrineORMModule', 'Proxy') do
+directory ::File.join(vhost_dir, 'data', 'DoctrineORMModule', 'Proxy') do
   recursive true
   mode 0774
   group "apache"
 end
 
-directory ::File.join(node.rsss.install_dir, 'data', 'SmartyModule', 'templates_c') do
+directory ::File.join(vhost_dir, 'data', 'SmartyModule', 'templates_c') do
   recursive true
   mode 0774
   group "apache"
@@ -71,11 +115,18 @@ end
 # Create DB and zap schema
 bash "Create Database Schema" do
   code <<-EOF
-if [ -z `mysql -e 'show databases' | grep rs_selfservice` ]
+if [ -z `mysql -e 'show databases' | grep #{underscored_fqdn}` ]
 then
-  mysql -e 'create database rs_selfservice'
+  mysql -e 'create database #{underscored_fqdn}'
 fi
 EOF
+end
+
+db_mysql_set_privileges "Create and authorize a MySQL user" do
+  preset "user"
+  username underscored_fqdn_16
+  password node.rsss.dbpass
+  db_name underscored_fqdn
 end
 
 product_add_lines = ''
@@ -84,9 +135,9 @@ node.rsss.products.each do |product|
 end
 
 bash "Zap Schema" do
-  cwd ::File.join(node.rsss.install_dir)
+  cwd ::File.join(vhost_dir)
   code <<-EOF
-if [ -z `mysql -e 'show tables' rs_selfservice` ]
+if [ -z `mysql -e 'show tables' #{underscored_fqdn}` ]
 then
   vendor/bin/doctrine-module orm:schema-tool:create#{product_add_lines}
 fi
@@ -94,7 +145,7 @@ fi
 end
 
 bash "Prime the caches" do
-  cwd ::File.join(node.rsss.install_dir)
+  cwd ::File.join(vhost_dir)
   code "php public/index.php cache update rightscale"
 end
 
@@ -105,23 +156,15 @@ node.rsss.users.each do |email|
 end
 
 bash "(Pre)authorize users" do
-  cwd ::File.join(node.rsss.install_dir)
+  cwd ::File.join(vhost_dir)
   code preauth_code
-end
-
-bash "Hack up the vhost" do
-  code <<-EOF
-sed -i 's/AllowOverride None/AllowOverride All/g' /etc/httpd/sites-available/rsss.conf
-sed -i 's,/home/webapps/rsss\\(>\\?\\)$,/home/webapps/rsss/public\\1,g' /etc/httpd/sites-available/rsss.conf
-/etc/init.d/httpd restart
-  EOF
 end
 
 # TODO: cron for updating cache
 rightscale_logrotate_app "rsss" do
   cookbook "rightscale"
   template "logrotate.erb"
-  path [::File.join(node.rsss.install_dir,"logs","*.log")]
+  path [::File.join(vhost_dir,"logs","*.log")]
   frequency "size 10M"
   rotate 4
 end
@@ -129,14 +172,7 @@ end
 cron "RSSS Cache Refresh" do
   minute 45
   user "root"
-  command "php #{::File.join(node.rsss.install_dir,"public","index.php")} cache update rightscale"
-  action :create
-end
-
-# TODO: Bump up the PHP Memory Limit based on available memory and reboot apache
-file "/etc/php.d/memory.ini" do
-  backup false
-  content "memory_limit = 512M"
+  command "php #{::File.join(vhost_dir,"public","index.php")} cache update rightscale"
   action :create
 end
 

@@ -3,21 +3,17 @@ maintainer_email "me@ryangeyer.com"
 license          "All rights reserved"
 description      "Installs/Configures rsss"
 long_description "Installs/Configures rsss"
-version          "0.0.3"
+version          "0.0.4"
 
 supports "centos"
 
-depends "rightscale"
-depends "repo"
-depends "apache2"
+%w{rightscale repo apache2 web_apache db_mysql db block_device}.each do |dep|
+  depends dep
+end
 
+recipe "rsss::setup_rsss_aio", "Sets up the filesystem and some defaults for running RSSS on an AIO instance"
 recipe "rsss::setup_rsss", "Assuming that the code has already been downloaded and that an apache vhost is setup, this installs and configures dependencies for the RSSS"
 recipe "rsss::setup_ride", "Adds RIDE.. If you don't know what this is, don't use it. ;)"
-
-attribute "rsss/install_dir",
-  :display_name => "RSSS Install Directory",
-  :required => "required",
-  :recipes => ["rsss::setup_rsss"]
 
 attribute "rsss/rightscale_email",
   :display_name => "RSSS RightScale Email",
@@ -67,4 +63,11 @@ attribute "rsss/users",
   :description => "An array of email addresses of users who are allowed to use the RSSS Vending Machine.  They will be authenticated by Google OpenID",
   :required => "required",
   :type => "array",
+  :recipes => ["rsss::setup_rsss"]
+
+attribute "rsss/revision",
+  :display_name => "RSSS Revision",
+  :description => "The Git Revision of the RSSS to checkout and deploy",
+  :required => "required",
+  :type => "string",
   :recipes => ["rsss::setup_rsss"]
