@@ -20,6 +20,10 @@ rightscale_marker :begin
 
 include_recipe "apache2::mod_ssl"
 
+apache_site "000-default" do
+  enable false
+end
+
 # Preset some things that are in external cookbooks
 # TODO: Should have the storage mountpoint be a variable or input somewhere
 mountpoint = "/mnt/storage"
@@ -66,6 +70,14 @@ sys_dns "default" do
   address node.cloud.public_ips[0]
   region node["rsss"]["dns"]["region"]
   action :set
+end
+
+db_init_status :set
+
+db_state_set "Set master state" do
+  master_uuid node["rightscale"]["instance_uuid"]
+  master_ip node["cloud"]["private_ips"][0]
+  is_master true
 end
 
 rightscale_marker :end

@@ -18,10 +18,6 @@ docroot = ::File.join(vhost_dir, "public")
 
 package "subversion"
 
-apache_site "000-default" do
-  enable false
-end
-
 ssl_dir = ::File.join("/etc", node.web_apache.config_subdir, 'rightscale.d', "key")
 
 directory ssl_dir do
