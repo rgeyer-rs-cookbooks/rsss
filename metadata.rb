@@ -35,6 +35,11 @@ attribute "rsss/fqdn",
   :required => "required",
   :recipes => ["rsss::setup_rsss", "rsss::setup_ride"]
 
+attribute "rsss/dbpass",
+  :display_name => "RSSS Database Password",
+  :required => "required",
+  :recipes => ["rsss::setup_rsss"]
+
 attribute "rsss/owners",
   :display_name => "RSSS Cloud Owners",
   :description => "An array of key:value pairs where the key is the RightScale Cloud ID, and the value is the owner ID for the supplied cloud credentials.  I.E. 1:1234-45678-910,1:1234-45678-910",
