@@ -72,12 +72,4 @@ sys_dns "default" do
   action :set
 end
 
-db_init_status :set
-
-db_state_set "Set master state" do
-  master_uuid node["rightscale"]["instance_uuid"]
-  master_ip node["cloud"]["private_ips"][0]
-  is_master true
-end
-
 rightscale_marker :end
