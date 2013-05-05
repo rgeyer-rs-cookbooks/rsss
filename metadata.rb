@@ -12,7 +12,7 @@ supports "centos"
 end
 
 recipe "rsss::setup_rsss_aio", "Sets up the filesystem and some defaults for running RSSS on an AIO instance"
-recipe "rsss::setup_rsss", "Assuming that the code has already been downloaded and that an apache vhost is setup, this installs and configures dependencies for the RSSS"
+recipe "rsss::setup_rsss", "Clones the specified revision of the RSSS, and sets up an HTTPS only vhost"
 recipe "rsss::setup_ride", "Adds RIDE.. If you don't know what this is, don't use it. ;)"
 
 attribute "rsss/rightscale_email",
@@ -91,4 +91,10 @@ attribute "rsss/dns/region",
     " Example: Chicago",
   :required => "optional",
   :choice => ["Chicago", "Dallas", "London"],
+  :recipes => ["rsss::setup_rsss_aio"]
+
+attribute "rsss/restore_lineage",
+  :display_name => "RSSS Restore Lineage",
+  :description => "When set, a db::do_primary_restore will be performed.  When not set, a new blank block_device will be created",
+  :required => "optional",
   :recipes => ["rsss::setup_rsss_aio"]

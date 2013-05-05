@@ -20,16 +20,27 @@ rightscale_marker :begin
 
 include_recipe "apache2::mod_ssl"
 
-apache_site "000-default" do
-  enable false
-end
-
 # Preset some things that are in external cookbooks
 # TODO: Should have the storage mountpoint be a variable or input somewhere
 mountpoint = "/mnt/storage"
 
 DATA_DIR = node[:db][:data_dir]
 datadir = ::File.join(DATA_DIR, "mysql")
+
+unless node["rsss"]["restore_lineage"]
+  include_recipe "block_device::setup_block_device"
+  db_init_status :set
+
+  db_state_set "Set master state" do
+    master_uuid node["rightscale"]["instance_uuid"]
+    master_ip node["cloud"]["private_ips"][0]
+    is_master true
+  end
+end
+
+apache_site "000-default" do
+  enable false
+end
 
 directory DATA_DIR do
   action :create
@@ -70,6 +81,18 @@ sys_dns "default" do
   address node.cloud.public_ips[0]
   region node["rsss"]["dns"]["region"]
   action :set
+end
+
+if node["rsss"]["restore_lineage"]
+  node["db"]["backup"]["lineage"] = node.rsss.restore_lineage
+  include_recipe "db::do_primary_restore"
+  db_init_status :set
+
+  db_state_set "Set master state" do
+    master_uuid node["rightscale"]["instance_uuid"]
+    master_ip node["cloud"]["private_ips"][0]
+    is_master true
+  end
 end
 
 rightscale_marker :end
