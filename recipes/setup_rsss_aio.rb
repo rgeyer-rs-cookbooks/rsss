@@ -18,6 +18,9 @@
 
 rightscale_marker :begin
 
+# TODO: Total hack, this should go into rs_vagrant_shim
+`modprobe xfs`
+
 include_recipe "apache2::mod_ssl"
 
 # Preset some things that are in external cookbooks
@@ -28,7 +31,7 @@ DATA_DIR = node[:db][:data_dir]
 datadir = ::File.join(DATA_DIR, "mysql")
 
 unless node["rsss"]["restore_lineage"]
-  include_recipe "block_device::setup_block_device"
+  #include_recipe "block_device::setup_block_device"
   db_init_status :set
 
   db_state_set "Set master state" do
@@ -93,6 +96,37 @@ if node["rsss"]["restore_lineage"]
     master_ip node["cloud"]["private_ips"][0]
     is_master true
   end
+end
+
+# Install & Configure MongoDB
+yum_repository "10gen" do
+  name "10gen"
+  url "http://downloads-distro.mongodb.org/repo/redhat/os/x86_64"
+  action :add
+end
+
+package "mongo-10gen" do
+  version "#{node["rsss"]["mongodb"]["version"]}-mongodb_1"
+  action :install
+end
+
+package "mongo-10gen-server" do
+  version "#{node["rsss"]["mongodb"]["version"]}-mongodb_1"
+  action :install
+end
+
+directory "/mnt/storage/mongodb" do
+  owner "mongod"
+  group "mongod"
+  mode 0755
+  recursive true
+end
+
+template "/etc/mongod.conf" do
+  source "mongod.conf.erb"
+  owner "mongod"
+  owner "mongod"
+  backup false
 end
 
 rightscale_marker :end
