@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: rsss
-# Recipe:: setup_rsss_aio
+# Recipe:: setup_mongodb_aio
 #
 # Copyright 2013, Ryan J. Geyer
 #
@@ -18,26 +18,39 @@
 
 rightscale_marker :begin
 
-include_recipe "apache2::mod_ssl"
-
-apache_site "000-default" do
-  enable false
+# Install & Configure MongoDB
+yum_repository "10gen" do
+  name "10gen"
+  url "http://downloads-distro.mongodb.org/repo/redhat/os/x86_64"
+  action :add
 end
 
-# TODO: Bump up the PHP Memory Limit based on available memory and reboot apache
-file "/etc/php.d/memory.ini" do
+package "mongo-10gen" do
+  version "#{node["rsss"]["mongodb"]["version"]}-mongodb_1"
+  action :install
+end
+
+package "mongo-10gen-server" do
+  version "#{node["rsss"]["mongodb"]["version"]}-mongodb_1"
+  action :install
+end
+
+directory "/mnt/storage/mongodb" do
+  owner "mongod"
+  group "mongod"
+  mode 0755
+  recursive true
+end
+
+template "/etc/mongod.conf" do
+  source "mongod.conf.erb"
+  owner "mongod"
+  group "mongod"
   backup false
-  content "memory_limit = 512M"
-  action :create
 end
 
-sys_dns "default" do
-  id node["rsss"]["dns"]["id"]
-  address node.cloud.public_ips[0]
-  region node["rsss"]["dns"]["region"]
-  action :set
+service "mongod" do
+  action :start
 end
-
-include_recipe "rsss::setup_mongodb_aio"
 
 rightscale_marker :end
