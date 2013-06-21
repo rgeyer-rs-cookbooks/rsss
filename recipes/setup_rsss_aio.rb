@@ -18,6 +18,21 @@
 
 rightscale_marker :begin
 
+# TODO: This is a hack that actually belongs in rs_vagrant_shim
+# and/or my images need to be cleaned up better.
+unless node["rsss"]["cleaned_yum"]
+  execute "yum clean" do
+    command "yum clean all"
+    action :run
+  end
+
+  ruby_block "set yum cleaned in node" do
+    block do
+      node["rsss"]["cleaned_yum"] = true
+    end
+  end
+end
+
 include_recipe "apache2::mod_ssl"
 
 apache_site "000-default" do

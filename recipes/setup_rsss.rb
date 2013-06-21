@@ -13,12 +13,16 @@ composer_path = ::File.join(Chef::Config[:file_cache_path], "composer.phar")
 underscored_fqdn = node.rsss.fqdn.gsub(".", "_")
 underscored_fqdn = underscored_fqdn.gsub("-", "_")
 underscored_fqdn_16 = underscored_fqdn.slice(0..15)
-vhost_dir = ::File.join(node.block_device.devices.device1.mount_point, "rsss", node.rsss.fqdn)
+rsss_dir = ::File.join(node.block_device.devices.device1.mount_point, "rsss")
+vhost_dir = ::File.join(rsss_dir, node.rsss.fqdn)
 docroot = ::File.join(vhost_dir, "public")
+ssl_dir = ::File.join("/etc", node.web_apache.config_subdir, 'rightscale.d', "key")
+
+directory rsss_dir do
+  recursive true
+end
 
 package "subversion"
-
-ssl_dir = ::File.join("/etc", node.web_apache.config_subdir, 'rightscale.d', "key")
 
 directory ssl_dir do
   mode 00700
@@ -84,8 +88,6 @@ template ::File.join(vhost_dir, 'config', 'autoload', 'local.php') do
   variables(
     :db_host => 'localhost',
     :db_name => underscored_fqdn,
-    :db_user => underscored_fqdn_16,
-    :db_pass => node.rsss.dbpass,
     :rs_email => node.rsss.rightscale_email,
     :rs_pass => node.rsss.rightscale_password,
     :rs_acct_num => node.rsss.rightscale_acct_num,
@@ -93,19 +95,6 @@ template ::File.join(vhost_dir, 'config', 'autoload', 'local.php') do
     :owners => node.rsss.owners,
     :memcached_servers => node.rsss.memcached_servers
   )
-end
-
-# Create empty model directories
-directory ::File.join(vhost_dir, 'data', 'DoctrineORMModule', 'Proxy') do
-  recursive true
-  mode 0774
-  group "apache"
-end
-
-directory ::File.join(vhost_dir, 'data', 'DoctrineMongoODMModule', 'Proxy') do
-  recursive true
-  mode 0774
-  group "apache"
 end
 
 directory ::File.join(vhost_dir, 'data', 'DoctrineMongoODMModule', 'Hydrator') do
@@ -120,23 +109,6 @@ directory ::File.join(vhost_dir, 'data', 'SmartyModule', 'templates_c') do
   group "apache"
 end
 
-# Create DB and zap schema
-bash "Create Database Schema" do
-  code <<-EOF
-if [ -z `mysql -e 'show databases' | grep #{underscored_fqdn}` ]
-then
-  mysql -e 'create database #{underscored_fqdn}'
-fi
-EOF
-end
-
-db_mysql_set_privileges "Create and authorize a MySQL user" do
-  preset "user"
-  username underscored_fqdn_16
-  password node.rsss.dbpass
-  db_name underscored_fqdn
-end
-
 product_add_lines = ''
 node.rsss.products.each do |product|
   product_add_lines += "\n  php public/index.php product add #{product}"
@@ -145,10 +117,7 @@ end
 bash "Zap Schema" do
   cwd ::File.join(vhost_dir)
   code <<-EOF
-if [ -z `mysql -e 'show tables' #{underscored_fqdn}` ]
-then
-  vendor/bin/doctrine-module orm:schema-tool:create#{product_add_lines}
-fi
+vendor/bin/doctrine-module odm:schema:create#{product_add_lines}
   EOF
 end
 
