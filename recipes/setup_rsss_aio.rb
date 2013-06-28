@@ -39,7 +39,6 @@ apache_site "000-default" do
   enable false
 end
 
-# TODO: Bump up the PHP Memory Limit based on available memory and reboot apache
 file "/etc/php.d/memory.ini" do
   backup false
   content "memory_limit = 512M"

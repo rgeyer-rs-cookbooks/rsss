@@ -137,7 +137,6 @@ bash "(Pre)authorize users" do
   code preauth_code
 end
 
-# TODO: cron for updating cache
 rightscale_logrotate_app "rsss" do
   cookbook "rightscale"
   template "logrotate.erb"
