@@ -39,7 +39,7 @@ attribute "rsss/fqdn",
 
 attribute "rsss/dbpass",
   :display_name => "RSSS Database Password",
-  :required => "required",
+  :required => "optional",
   :recipes => ["rsss::setup_rsss"]
 
 attribute "rsss/owners",
@@ -62,7 +62,7 @@ attribute "rsss/products",
   :description => "An array of products which should be setup on the initial run.  Available options are (baselinux,php3tier)",
   :required => "recommended",
   :type => "array",
-  :default => ["baselinux","php3tier"],
+  :default => ["baselinux","3tier"],
   :recipes => ["rsss::setup_rsss"]
 
 attribute "rsss/users",
