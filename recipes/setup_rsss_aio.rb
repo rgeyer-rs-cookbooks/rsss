@@ -18,21 +18,6 @@
 
 rightscale_marker :begin
 
-# TODO: This is a hack that actually belongs in rs_vagrant_shim
-# and/or my images need to be cleaned up better.
-unless node["rsss"]["cleaned_yum"]
-  execute "yum clean" do
-    command "yum clean all"
-    action :run
-  end
-
-  ruby_block "set yum cleaned in node" do
-    block do
-      node["rsss"]["cleaned_yum"] = true
-    end
-  end
-end
-
 include_recipe "apache2::mod_ssl"
 
 apache_site "000-default" do
@@ -45,11 +30,20 @@ file "/etc/php.d/memory.ini" do
   action :create
 end
 
-sys_dns "default" do
-  id node["rsss"]["dns"]["id"]
-  address node.cloud.public_ips[0]
-  region node["rsss"]["dns"]["region"]
-  action :set
+if node["rsss"]["dns"]["id"] && node["rsss"]["dns"]["user"] && node["rsss"]["dns"]["password"]
+
+  node["sys_dns"]["choice"] = node["rsss"]["dns"]["choice"]
+  node["sys_dns"]["user"] = node["rsss"]["dns"]["user"]
+  node["sys_dns"]["password"] = node["rsss"]["dns"]["password"]
+
+  include_recipe "sys_dns::default"
+
+  sys_dns "default" do
+    id node["rsss"]["dns"]["id"]
+    address node.cloud.public_ips[0]
+    region node["rsss"]["dns"]["region"]
+    action :set
+  end
 end
 
 include_recipe "rsss::setup_mongodb_aio"

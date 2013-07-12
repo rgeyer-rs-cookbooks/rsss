@@ -79,11 +79,32 @@ attribute "rsss/revision",
   :type => "string",
   :recipes => ["rsss::setup_rsss"]
 
+attribute "rsss/dns/choice",
+  :display_name => "RSSS DNS Service Provider",
+  :description => "See sys_dns/choice for more details",
+  :required => "optional",
+  :choice => ["DNSMadeEasy", "DynDNS", "Route53", "CloudDNS"],
+  :recipes => ["rsss::setup_rsss_aio"]
+
 attribute "rsss/dns/id",
   :display_name => "RSSS DNS Record ID",
   :description => "See sys_dns/id for more details",
-  :required => "required",
+  :required => "optional",
   :type => "string",
+  :recipes => ["rsss::setup_rsss_aio"]
+
+attribute "rsss/dns/user",
+  :display_name => "RSSS DNS User",
+  :description =>
+      "See sys_dns/user for more details",
+  :required => "optional",
+  :recipes => ["rsss::setup_rsss_aio"]
+
+attribute "rsss/dns/password",
+  :display_name => "RSSS DNS Password",
+  :description =>
+      "See sys_dns/user for more details",
+  :required => "optional",
   :recipes => ["rsss::setup_rsss_aio"]
 
 attribute "rsss/dns/region",
