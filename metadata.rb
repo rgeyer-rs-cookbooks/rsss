@@ -116,12 +116,6 @@ attribute "rsss/dns/region",
   :choice => ["Chicago", "Dallas", "London"],
   :recipes => ["rsss::setup_rsss_aio"]
 
-attribute "rsss/restore_lineage",
-  :display_name => "RSSS Restore Lineage",
-  :description => "When set, a db::do_primary_restore will be performed.  When not set, a new blank block_device will be created",
-  :required => "optional",
-  :recipes => ["rsss::setup_rsss_aio"]
-
 attribute "rsss/mongodb/version",
   :display_name => "RSSS Mongo Version",
   :description => "The version of MongoDB to install",
