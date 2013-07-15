@@ -3,7 +3,7 @@ maintainer_email "me@ryangeyer.com"
 license          "All rights reserved"
 description      "Installs/Configures rsss"
 long_description "Installs/Configures rsss"
-version          "0.0.4"
+version          "0.0.5"
 
 supports "centos"
 

@@ -9,7 +9,16 @@
     "centos": ">= 0.0.0"
   },
   "dependencies": {
-    "rightscale": ">= 0.0.0"
+    "rightscale": ">= 0.0.0",
+    "repo": ">= 0.0.0",
+    "apache2": ">= 0.0.0",
+    "web_apache": ">= 0.0.0",
+    "db_mysql": ">= 0.0.0",
+    "db": ">= 0.0.0",
+    "block_device": ">= 0.0.0",
+    "sys_dns": ">= 0.0.0",
+    "logrotate": ">= 0.0.0",
+    "yum": "~> 2.2"
   },
   "recommendations": {
   },
@@ -22,18 +31,6 @@
   "replacing": {
   },
   "attributes": {
-    "rsss/install_dir": {
-      "display_name": "RSSS Install Directory",
-      "required": "required",
-      "recipes": [
-        "rsss::setup_rsss"
-      ],
-      "choice": [
-
-      ],
-      "calculated": false,
-      "type": "string"
-    },
     "rsss/rightscale_email": {
       "display_name": "RSSS RightScale Email",
       "required": "required",
@@ -83,6 +80,18 @@
       "calculated": false,
       "type": "string"
     },
+    "rsss/dbpass": {
+      "display_name": "RSSS Database Password",
+      "required": "optional",
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
+    },
     "rsss/owners": {
       "display_name": "RSSS Cloud Owners",
       "description": "An array of key:value pairs where the key is the RightScale Cloud ID, and the value is the owner ID for the supplied cloud credentials.  I.E. 1:1234-45678-910,1:1234-45678-910",
@@ -119,7 +128,7 @@
       "type": "array",
       "default": [
         "baselinux",
-        "php3tier"
+        "3tier"
       ],
       "recipes": [
         "rsss::setup_rsss"
@@ -141,13 +150,124 @@
 
       ],
       "calculated": false
+    },
+    "rsss/revision": {
+      "display_name": "RSSS Revision",
+      "description": "The Git Revision of the RSSS to checkout and deploy",
+      "required": "required",
+      "type": "string",
+      "recipes": [
+        "rsss::setup_rsss"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false
+    },
+    "rsss/dns/choice": {
+      "display_name": "RSSS DNS Service Provider",
+      "description": "See sys_dns/choice for more details",
+      "required": "optional",
+      "choice": [
+        "DNSMadeEasy",
+        "DynDNS",
+        "Route53",
+        "CloudDNS"
+      ],
+      "recipes": [
+        "rsss::setup_rsss_aio"
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/dns/id": {
+      "display_name": "RSSS DNS Record ID",
+      "description": "See sys_dns/id for more details",
+      "required": "optional",
+      "type": "string",
+      "recipes": [
+        "rsss::setup_rsss_aio"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false
+    },
+    "rsss/dns/user": {
+      "display_name": "RSSS DNS User",
+      "description": "See sys_dns/user for more details",
+      "required": "optional",
+      "recipes": [
+        "rsss::setup_rsss_aio"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/dns/password": {
+      "display_name": "RSSS DNS Password",
+      "description": "See sys_dns/user for more details",
+      "required": "optional",
+      "recipes": [
+        "rsss::setup_rsss_aio"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/dns/region": {
+      "display_name": "RSSS Cloud DNS Region",
+      "description": "You must specify the region when using CloudDNS. Example: Chicago",
+      "required": "optional",
+      "choice": [
+        "Chicago",
+        "Dallas",
+        "London"
+      ],
+      "recipes": [
+        "rsss::setup_rsss_aio"
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/restore_lineage": {
+      "display_name": "RSSS Restore Lineage",
+      "description": "When set, a db::do_primary_restore will be performed.  When not set, a new blank block_device will be created",
+      "required": "optional",
+      "recipes": [
+        "rsss::setup_rsss_aio"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
+    },
+    "rsss/mongodb/version": {
+      "display_name": "RSSS Mongo Version",
+      "description": "The version of MongoDB to install",
+      "required": "optional",
+      "default": "2.4.3",
+      "recipes": [
+        "rsss::setup_rsss_aio"
+      ],
+      "choice": [
+
+      ],
+      "calculated": false,
+      "type": "string"
     }
   },
   "groupings": {
   },
   "recipes": {
-    "rsss::setup_rsss": "Assuming that the code has already been downloaded and that an apache vhost is setup, this installs and configures dependencies for the RSSS",
+    "rsss::setup_rsss_aio": "Sets up the filesystem and some defaults for running RSSS on an AIO instance",
+    "rsss::setup_rsss": "Clones the specified revision of the RSSS, and sets up an HTTPS only vhost",
     "rsss::setup_ride": "Adds RIDE.. If you don't know what this is, don't use it. ;)"
   },
-  "version": "0.0.3"
+  "version": "0.0.5"
 }
