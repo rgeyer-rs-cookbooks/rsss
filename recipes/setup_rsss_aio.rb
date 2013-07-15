@@ -32,6 +32,7 @@ end
 
 if node["rsss"]["dns"]["id"] && node["rsss"]["dns"]["user"] && node["rsss"]["dns"]["password"]
 
+  node["sys_dns"] = {}
   node["sys_dns"]["choice"] = node["rsss"]["dns"]["choice"]
   node["sys_dns"]["user"] = node["rsss"]["dns"]["user"]
   node["sys_dns"]["password"] = node["rsss"]["dns"]["password"]
