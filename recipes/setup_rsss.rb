@@ -103,6 +103,12 @@ directory ::File.join(vhost_dir, 'data', 'DoctrineMongoODMModule', 'Hydrator') d
   group "apache"
 end
 
+directory ::File.join(vhost_dir, 'data', 'DoctrineMongoODMModule', 'Proxy') do
+  recursive true
+  mode 0774
+  group "apache"
+end
+
 directory ::File.join(vhost_dir, 'data', 'SmartyModule', 'templates_c') do
   recursive true
   mode 0774
