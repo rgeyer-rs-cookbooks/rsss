@@ -151,7 +151,7 @@ rightscale_logrotate_app "rsss" do
   rotate 4
 end
 
-cron "RSSS Cache Refresh" do
+cron "RSSS Cache Refresh #{underscored_fqdn}" do
   minute 45
   user "root"
   command "php #{::File.join(vhost_dir,"public","index.php")} cache update rightscale"
