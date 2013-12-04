@@ -3,11 +3,11 @@ maintainer_email "me@ryangeyer.com"
 license          "All rights reserved"
 description      "Installs/Configures rsss"
 long_description "Installs/Configures rsss"
-version          "0.0.5"
+version          "0.0.6"
 
 supports "centos"
 
-%w{rightscale repo apache2 web_apache db_mysql db block_device sys_dns logrotate}.each do |dep|
+%w{rightscale apache2 web_apache block_device sys_dns logrotate}.each do |dep|
   depends dep
 end
 
